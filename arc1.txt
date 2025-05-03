@@ -1,0 +1,38 @@
+César Guerra Martínez - A01656774
+Gerardo Deustúa Hernández - A01736455
+José Luis Zago Guevara - A01736278
+./img/grey_1.bmp
+tamano archivo 8106040
+bits por pixel 24
+largo img 2160
+ancho img 3840
+lectura de datos: 24883203
+elementos faltantes: -16777163
+./img/invH_color_1.bmp
+tamano archivo 8106040
+bits por pixel 24
+largo img 2160
+ancho img 3840
+lectura de datos: 24883203
+elementos faltantes: -16777163
+./img/invV_color_1.bmp
+tamano archivo 8106040
+bits por pixel 24
+largo img 2160
+ancho img 3840
+lectura de datos: 24883203
+elementos faltantes: -16777163
+./img/invH_grey_1.bmp
+tamano archivo 8106040
+bits por pixel 24
+largo img 2160
+ancho img 3840
+lectura de datos: 24883203
+elementos faltantes: -16777163
+./img/invV_grey_1.bmp
+tamano archivo 8106040
+bits por pixel 24
+largo img 2160
+ancho img 3840
+lectura de datos: 24883203
+elementos faltantes: -16777163
