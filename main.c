@@ -17,12 +17,12 @@ int main(){
     fprintf(fptr, "Gerardo Deustúa Hernández - A017\n");
     fprintf(fptr, "José Luis Zago Guevara - A01736278\n");
 
-    /*fam.bmp, prueba1.bmp, sample.bmp, sample1.bmp */
-    grey_img("grey_1" ,"./img/sample.bmp", fptr);
+    gray_img("gray_1" ,"./img/sample.bmp", fptr);
     invH_color_img("invH_color_1" ,"./img/sample.bmp", fptr);
     invV_color_img("invV_color_1" ,"./img/sample.bmp", fptr);
-    invH_grey_img("invH_grey_1" ,"./img/sample.bmp", fptr);
-    invV_grey_img("invV_grey_1" ,"./img/sample.bmp", fptr);
+    invH_gray_img("invH_gray_1" ,"./img/sample.bmp", fptr);
+    invV_gray_img("invV_gray_1" ,"./img/sample.bmp", fptr);
+    blur_img("blur_1" ,"./img/sample.bmp", fptr, 55);
     fclose(fptr);
     return 0;
 }
