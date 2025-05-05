@@ -143,7 +143,7 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
     fprintf(file, "lectura de datos: %d\n", j * 3);
     fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
 
-    for (int i = alto; i > 0; i--) {
+    for (int i = alto - 1; i > 0; i--) {
         
         for (int k = 0; k < ancho; k++) {
             fputc(arr_in [(i * ancho) + k], outputImage);
@@ -273,7 +273,7 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
     fprintf(file, "lectura de datos: %d\n", j * 3);
     fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
 
-    for (int i = alto; i > 0; i--) {
+    for (int i = alto - 1; i > 0; i--) {
         
         for (int k = 0; k < ancho; k++) {
             fputc(arr_in_b [(i * ancho) + k], outputImage);
