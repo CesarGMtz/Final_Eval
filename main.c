@@ -20,9 +20,10 @@ int main(){
 
     // Paralelismo
     double start_time = omp_get_wtime();
+    omp_set_nested(1);
 
     #pragma omp parallel for
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
             char originalFile[50];
             char grayFile[50];
             char invHColorFile[50];

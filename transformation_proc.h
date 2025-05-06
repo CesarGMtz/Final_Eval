@@ -48,9 +48,8 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
     outputImage = fopen(add_char,"wb");
 
 	//Definition of variables
-	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+	int i, tam1;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -63,22 +62,24 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
     tam1 = tam;
 
-    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
-   
-    j = 0;
+    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*3*sizeof(unsigned char));
+    fread(arr_in, sizeof(unsigned char), ancho*alto*3, image);
+    
+    unsigned char* arr_out = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
 
-    while (!feof(image)) {
-        b = fgetc(image);
-        g = fgetc(image);
-        r = fgetc(image);
-        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+    #pragma omp parallel for private(r, g, b, pixel)
+        for (i = 0; i < ancho*alto; i++) {
+            r = arr_in[i * 3 + 2];
+            g = arr_in[i * 3 + 1];
+            b = arr_in[i * 3 + 0];
+            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+            arr_out[i] = pixel;
+        }
 
-        fputc(pixel, outputImage);
-        fputc(pixel, outputImage);
-        fputc(pixel, outputImage);
-        
-        arr_in[j] = pixel;
-        j++;
+    for (i = 0; i < ancho*alto; i++) {
+        fputc(arr_out[i], outputImage);
+        fputc(arr_out[i], outputImage);
+        fputc(arr_out[i], outputImage);
     }
 
     #pragma omp critical
@@ -88,11 +89,12 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
             fprintf(file, "bits por pixel %li\n", bpp);
             fprintf(file, "largo img %li\n", alto);
             fprintf(file, "ancho img %li\n", ancho);
-            fprintf(file, "lectura de datos: %d\n", j * 3);
-            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+            fprintf(file, "lectura de datos: %d\n", ancho * alto * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (ancho * alto * 3));
         }
 
     free(arr_in);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
@@ -109,8 +111,7 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
 
 	//Definition of variables
 	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -123,24 +124,26 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
     tam1 = tam;
 
-    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
+    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*3*sizeof(unsigned char));
+    fread(arr_in, sizeof(unsigned char), ancho*alto*3, image);
+    
+    unsigned char* arr_out = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
+
    
-    j = 0;
+    #pragma omp parallel for private(r, g, b, pixel)
+        for (i = 0; i < ancho*alto; i++) {
+            r = arr_in[i * 3 + 2];
+            g = arr_in[i * 3 + 1];
+            b = arr_in[i * 3 + 0];
+            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+            arr_out[i] = pixel;
+        }
 
-    while (!feof(image)) {
-        b = fgetc(image);
-        g = fgetc(image);
-        r = fgetc(image);
-        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-        arr_in[j] = pixel;
-        j++;
-    }
-
-    for (int i = alto - 1; i > 0; i--) {
-        for (int k = 0; k < ancho; k++) {
-            fputc(arr_in [(i * ancho) + k], outputImage);
-            fputc(arr_in [(i * ancho) + k], outputImage);
-            fputc(arr_in [(i * ancho) + k], outputImage);
+    for (i = alto - 1; i > 0; i--) {
+        for (j = 0; j < ancho; j++) {
+            fputc(arr_out[(i * ancho) + j], outputImage);
+            fputc(arr_out[(i * ancho) + j], outputImage);
+            fputc(arr_out[(i * ancho) + j], outputImage);
         }
     }
 
@@ -151,11 +154,12 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
             fprintf(file, "bits por pixel %li\n", bpp);
             fprintf(file, "largo img %li\n", alto);
             fprintf(file, "ancho img %li\n", ancho);
-            fprintf(file, "lectura de datos: %d\n", j * 3);
-            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+            fprintf(file, "lectura de datos: %d\n", ancho * alto * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (ancho * alto * 3));
         }
 
     free(arr_in);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
@@ -172,8 +176,7 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
 
 	//Definition of variables
 	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -186,24 +189,25 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
     tam1 = tam;
 
-    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
+    unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*3*sizeof(unsigned char));
+    fread(arr_in, sizeof(unsigned char), ancho*alto*3, image);
+    
+    unsigned char* arr_out = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
    
-    j = 0;
+    #pragma omp parallel for private(r, g, b, pixel)
+        for (i = 0; i < ancho*alto; i++) {
+            r = arr_in[i * 3 + 2];
+            g = arr_in[i * 3 + 1];
+            b = arr_in[i * 3 + 0];
+            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+            arr_out[i] = pixel;
+        }
 
-    while (!feof(image)) {
-        b = fgetc(image);
-        g = fgetc(image);
-        r = fgetc(image);
-        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-        arr_in[j] = pixel;
-        j++;
-    }
-
-    for (int i = 0; i < alto; i++) {
-        for (int k = ancho; k > 0; k--) {
-            fputc(arr_in [(i * ancho) + k], outputImage);
-            fputc(arr_in [(i * ancho) + k], outputImage);
-            fputc(arr_in [(i * ancho) + k], outputImage);
+    for (i = 0; i < alto; i++) {
+        for (j = ancho; j > 0; j--) {
+            fputc(arr_out[(i * ancho) + j], outputImage);
+            fputc(arr_out[(i * ancho) + j], outputImage);
+            fputc(arr_out[(i * ancho) + j], outputImage);
         }
     }
 
@@ -214,11 +218,12 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
             fprintf(file, "bits por pixel %li\n", bpp);
             fprintf(file, "largo img %li\n", alto);
             fprintf(file, "ancho img %li\n", ancho);
-            fprintf(file, "lectura de datos: %d\n", j * 3);
-            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+            fprintf(file, "lectura de datos: %d\n", ancho * alto * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (ancho * alto * 3));
         }
 
     free(arr_in);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
@@ -234,9 +239,8 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
     outputImage = fopen(add_char,"wb");
 
 	//Definition of variables
-	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+	int i, j, k, tam1;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -266,8 +270,9 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    for (int i = alto - 1; i > 0; i--) {
-        for (int k = 0; k < ancho; k++) {
+
+    for (i = alto - 1; i > 0; i--) {
+        for (k = 0; k < ancho; k++) {
             fputc(arr_in_b [(i * ancho) + k], outputImage);
             fputc(arr_in_g [(i * ancho) + k], outputImage);
             fputc(arr_in_r [(i * ancho) + k], outputImage);
@@ -303,9 +308,8 @@ extern void invV_color_img(char mask[10], char path[80], FILE* file) {
     outputImage = fopen(add_char,"wb");
 
 	//Definition of variables
-	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+	int i, j, k, tam1;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -335,8 +339,8 @@ extern void invV_color_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    for (int i = 0; i < alto; i++) {
-        for (int k = ancho; k > 0; k--) {
+    for (i = 0; i < alto; i++) {
+        for (k = ancho; k > 0; k--) {
             fputc(arr_in_b [(i * ancho) + k], outputImage);
             fputc(arr_in_g [(i * ancho) + k], outputImage);
             fputc(arr_in_r [(i * ancho) + k], outputImage);
@@ -372,9 +376,8 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
     outputImage = fopen(add_char,"wb");
 
 	//Definition of variables
-	int i, j, tam1;
-    long ancho, tam, bpp;
-    long alto;
+	int i, j, k, tam1;
+    long ancho, alto, tam, bpp;
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
@@ -390,57 +393,59 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
     unsigned char* arr_in_b = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
     unsigned char* arr_in_g = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
     unsigned char* arr_in_r = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
-
+    unsigned char* arr_out_b = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
+    unsigned char* arr_out_g = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
+    unsigned char* arr_out_r = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
+    
     j = 0;
 
-    for (int y = 0; y < alto; y++) {
-        for (int x = 0; x < ancho; x++) {
-            b = fgetc(image);
-            g = fgetc(image);
-            r = fgetc(image);
-
-            arr_in_b[j] = b;
-            arr_in_g[j] = g;
-            arr_in_r[j] = r;
-            j++;
-        }
+    while (!feof(image)) {
+        b = fgetc(image);
+        g = fgetc(image);
+        r = fgetc(image);
+        
+        arr_in_b[j] = b;
+        arr_in_g[j] = g;
+        arr_in_r[j] = r;
+        j++;
     }
 
     int kernelRadius = (kernel - 1) / 2;
 
-    for (int y = 0; y < alto; y++) {
-        for (int x = 0; x < ancho; x++) {
-            unsigned int bSum = 0;
-            unsigned int gSum = 0;
-            unsigned int rSum = 0;
-            int pond = 0;
+    #pragma omp parallel for collapse(2) // Para los 2 ciclos
+        for (int y = 0; y < alto; y++) {
+            for (int x = 0; x < ancho; x++) {
+                unsigned int bSum = 0;
+                unsigned int gSum = 0;
+                unsigned int rSum = 0;
+                int pond = 0;
 
-            for (int ky = -kernelRadius; ky <= kernelRadius; ky++) {
-                for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
-                    int i = y + ky;
-                    int j = x + kx;
+                for (int ky = -kernelRadius; ky <= kernelRadius; ky++) {
+                    for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
+                        int ny = y + ky;
+                        int nx = x + kx;
 
-                    if (i < 0 || i >= alto || j < 0 || j >= ancho) 
-                        continue;
+                        if (ny < 0 || ny >= alto || nx < 0 || nx >= ancho) 
+                            continue;
 
-                    bSum += arr_in_b[(i * ancho) + j];
-                    gSum += arr_in_g[(i * ancho) + j];
-                    rSum += arr_in_r[(i * ancho) + j];
-                    pond++;
+                        bSum += arr_in_b[(ny * ancho) + nx];
+                        gSum += arr_in_g[(ny * ancho) + nx];
+                        rSum += arr_in_r[(ny * ancho) + nx];
+                        pond++;
+                    }
                 }
+
+                arr_out_b[(y * ancho) + x] = bSum / pond;
+                arr_out_g[(y * ancho) + x] = gSum / pond;
+                arr_out_r[(y * ancho) + x] = rSum / pond;
             }
-
-            arr_in_b[(y * ancho) + x] = bSum / pond;
-            arr_in_g[(y * ancho) + x] = gSum / pond;
-            arr_in_r[(y * ancho) + x] = rSum / pond;
         }
-    }
 
-    for (int i = 0; i < alto; i++) {
-        for (int k = 0; k < ancho; k++) {
-            fputc(arr_in_b[(i * ancho) + k], outputImage);
-            fputc(arr_in_g[(i * ancho) + k], outputImage);
-            fputc(arr_in_r[(i * ancho) + k], outputImage);
+    for (i = 0; i < alto; i++) {
+        for (k = 0; k < ancho; k++) {
+            fputc(arr_out_b[(i * ancho) + k], outputImage);
+            fputc(arr_out_g[(i * ancho) + k], outputImage);
+            fputc(arr_out_r[(i * ancho) + k], outputImage);
         }
     }
 
@@ -458,6 +463,9 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
     free(arr_in_b);
     free(arr_in_g);
     free(arr_in_r);
+    free(arr_out_b);
+    free(arr_out_g);
+    free(arr_out_r);
 
     fclose(image);
     fclose(outputImage);
