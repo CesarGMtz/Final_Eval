@@ -41,10 +41,9 @@ extern void itoa2(int N, char *str) {
 
 extern void gray_img(char mask[10], char path[80], FILE* file) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -55,19 +54,14 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
 
     unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
    
@@ -87,9 +81,17 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
-    
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
+
     free(arr_in);
 
     fclose(image);
@@ -99,10 +101,9 @@ extern void gray_img(char mask[10], char path[80], FILE* file) {
 
 extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -113,19 +114,14 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
 
     unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
    
@@ -140,18 +136,24 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
-
     for (int i = alto - 1; i > 0; i--) {
-        
         for (int k = 0; k < ancho; k++) {
             fputc(arr_in [(i * ancho) + k], outputImage);
             fputc(arr_in [(i * ancho) + k], outputImage);
             fputc(arr_in [(i * ancho) + k], outputImage);
         }
-        
     }
+
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
 
     free(arr_in);
 
@@ -162,10 +164,9 @@ extern void invH_gray_img(char mask[10], char path[80], FILE* file) {
 
 extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -176,19 +177,14 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
 
     unsigned char* arr_in = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
    
@@ -203,18 +199,24 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
-
     for (int i = 0; i < alto; i++) {
-        
         for (int k = ancho; k > 0; k--) {
             fputc(arr_in [(i * ancho) + k], outputImage);
             fputc(arr_in [(i * ancho) + k], outputImage);
             fputc(arr_in [(i * ancho) + k], outputImage);
         }
-        
     }
+
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
 
     free(arr_in);
 
@@ -225,10 +227,9 @@ extern void invV_gray_img(char mask[10], char path[80], FILE* file) {
 
 extern void invH_color_img(char mask[10], char path[80], FILE* file) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -239,19 +240,14 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
 
     unsigned char* arr_in_b = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
     unsigned char* arr_in_g = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
@@ -270,18 +266,24 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
-
     for (int i = alto - 1; i > 0; i--) {
-        
         for (int k = 0; k < ancho; k++) {
             fputc(arr_in_b [(i * ancho) + k], outputImage);
             fputc(arr_in_g [(i * ancho) + k], outputImage);
             fputc(arr_in_r [(i * ancho) + k], outputImage);
         }
-        
     }
+
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
 
     free(arr_in_b);
     free(arr_in_g);
@@ -294,10 +296,9 @@ extern void invH_color_img(char mask[10], char path[80], FILE* file) {
 
 extern void invV_color_img(char mask[10], char path[80], FILE* file) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -308,19 +309,14 @@ extern void invV_color_img(char mask[10], char path[80], FILE* file) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
 
     unsigned char* arr_in_b = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
     unsigned char* arr_in_g = (unsigned char*)malloc(ancho*alto*sizeof(unsigned char));
@@ -339,18 +335,24 @@ extern void invV_color_img(char mask[10], char path[80], FILE* file) {
         j++;
     }
 
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
-    
     for (int i = 0; i < alto; i++) {
-        
         for (int k = ancho; k > 0; k--) {
             fputc(arr_in_b [(i * ancho) + k], outputImage);
             fputc(arr_in_g [(i * ancho) + k], outputImage);
             fputc(arr_in_r [(i * ancho) + k], outputImage);
         }
-        
     }
+
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
 
     free(arr_in_b);
     free(arr_in_g);
@@ -363,10 +365,9 @@ extern void invV_color_img(char mask[10], char path[80], FILE* file) {
 
 extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
     FILE *image, *outputImage, *lecturas, *fptr;
-    char add_char[80] = "./img/";
+    char add_char[80] = "./r_img/";
     strcat(add_char, mask);
     strcat(add_char, ".bmp");
-    fprintf(file, "%s\n", add_char);
     image = fopen(path,"rb");          //Original Image
     outputImage = fopen(add_char,"wb");
 
@@ -377,44 +378,33 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
     unsigned char r, g, b, pixel;               //Pixel
 
     unsigned char xx[54];
-    for (int i=0; i<54; i++) {
-      xx[i] = fgetc(image);
-      fputc(xx[i], outputImage);   //Copia cabecera a nueva imagen
-    }
+    fread(xx, sizeof(unsigned char), 54, image);
+    fwrite(xx, sizeof(unsigned char), 54, outputImage);
+    
     tam = (long)xx[4]*65536+(long)xx[3]*256+(long)xx[2];
     bpp = (long)xx[29]*256+(long)xx[28];
     ancho = (long)xx[20]*65536+(long)xx[19]*256+(long)xx[18];
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
-    fprintf(file, "tamano archivo %li\n", tam);
     tam1 = tam;
-    fprintf(file, "bits por pixel %li\n", bpp);
-    fprintf(file, "largo img %li\n",alto);
-    fprintf(file, "ancho img %li\n",ancho);
-
-    int rowPadding = (4 - (ancho * 3) % 4) % 4;
 
     unsigned char* arr_in_b = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
     unsigned char* arr_in_g = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
     unsigned char* arr_in_r = (unsigned char*)malloc(ancho * alto * sizeof(unsigned char));
 
     j = 0;
+
     for (int y = 0; y < alto; y++) {
         for (int x = 0; x < ancho; x++) {
-            unsigned char b = fgetc(image);
-            unsigned char g = fgetc(image);
-            unsigned char r = fgetc(image);
+            b = fgetc(image);
+            g = fgetc(image);
+            r = fgetc(image);
 
             arr_in_b[j] = b;
             arr_in_g[j] = g;
             arr_in_r[j] = r;
             j++;
         }
-
-        fseek(image, rowPadding, SEEK_CUR);
     }
-
-    fprintf(file, "lectura de datos: %d\n", j * 3);
-    fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
 
     int kernelRadius = (kernel - 1) / 2;
 
@@ -430,12 +420,12 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
                     int i = y + ky;
                     int j = x + kx;
 
-                    if (i < 0 || i >= alto || j < 0 || j >= ancho) continue;
+                    if (i < 0 || i >= alto || j < 0 || j >= ancho) 
+                        continue;
 
-                    int index = (i * ancho) + j;
-                    bSum += arr_in_b[index];
-                    gSum += arr_in_g[index];
-                    rSum += arr_in_r[index];
+                    bSum += arr_in_b[(i * ancho) + j];
+                    gSum += arr_in_g[(i * ancho) + j];
+                    rSum += arr_in_r[(i * ancho) + j];
                     pond++;
                 }
             }
@@ -446,27 +436,25 @@ extern void blur_img(char mask[10], char path[80], FILE* file, int kernel) {
         }
     }
 
-    for (int y = 0; y < alto; y++) {
-        for (int x = 0; x < ancho; x++) {
-            fputc(arr_in_b[(y * ancho) + x], outputImage);
-            fputc(arr_in_g[(y * ancho) + x], outputImage);
-            fputc(arr_in_r[(y * ancho) + x], outputImage);
-        }
-
-        for (int p = 0; p < rowPadding; p++) {
-            fputc(0, outputImage);
+    for (int i = 0; i < alto; i++) {
+        for (int k = 0; k < ancho; k++) {
+            fputc(arr_in_b[(i * ancho) + k], outputImage);
+            fputc(arr_in_g[(i * ancho) + k], outputImage);
+            fputc(arr_in_r[(i * ancho) + k], outputImage);
         }
     }
 
-    int newImageSize = ancho * alto * 3 + alto * rowPadding;
-    *(int*)&xx[34] = newImageSize;
-    *(int*)&xx[2] = 54 + newImageSize;
-
-    fseek(outputImage, 0, SEEK_SET);
-    for (int i = 0; i < 54; i++) {
-        fputc(xx[i], outputImage);
-    }
-
+    #pragma omp critical
+        {
+            fprintf(file, "%s\n", add_char);
+            fprintf(file, "tamano archivo %li\n", tam);
+            fprintf(file, "bits por pixel %li\n", bpp);
+            fprintf(file, "largo img %li\n", alto);
+            fprintf(file, "ancho img %li\n", ancho);
+            fprintf(file, "lectura de datos: %d\n", j * 3);
+            fprintf(file, "elementos faltantes: %d\n", tam1 - (j * 3));
+        }
+        
     free(arr_in_b);
     free(arr_in_g);
     free(arr_in_r);

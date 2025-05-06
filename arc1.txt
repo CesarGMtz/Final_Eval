@@ -1,42 +1,84 @@
 César Guerra Martínez - A01656774
 Gerardo Deustúa Hernández - A017
 José Luis Zago Guevara - A01736278
-./img/gray_1.bmp
+./r_img/img_1_gray.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
 ancho img 3000
 lectura de datos: 27000003
 elementos faltantes: -16777165
-./img/invH_color_1.bmp
+./r_img/img_0_gray.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
 ancho img 3000
 lectura de datos: 27000003
 elementos faltantes: -16777165
-./img/invV_color_1.bmp
+./r_img/img_1_invHColor.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
 ancho img 3000
 lectura de datos: 27000003
 elementos faltantes: -16777165
-./img/invH_gray_1.bmp
+./r_img/img_0_invHColor.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
 ancho img 3000
 lectura de datos: 27000003
 elementos faltantes: -16777165
-./img/invV_gray_1.bmp
+./r_img/img_1_invVColor.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
 ancho img 3000
 lectura de datos: 27000003
 elementos faltantes: -16777165
-./img/blur_1.bmp
+./r_img/img_0_invVColor.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000003
+elementos faltantes: -16777165
+./r_img/img_1_invHGray.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000003
+elementos faltantes: -16777165
+./r_img/img_0_invHGray.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000003
+elementos faltantes: -16777165
+./r_img/img_1_invVGray.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000003
+elementos faltantes: -16777165
+./r_img/img_0_invVGray.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000003
+elementos faltantes: -16777165
+./r_img/img_1_blur.bmp
+tamano archivo 10222838
+bits por pixel 24
+largo img 3000
+ancho img 3000
+lectura de datos: 27000000
+elementos faltantes: -16777162
+./r_img/img_0_blur.bmp
 tamano archivo 10222838
 bits por pixel 24
 largo img 3000
