@@ -16,14 +16,17 @@ int main(){
 
     fprintf(fptr, "César Guerra Martínez - A01656774\n");
     fprintf(fptr, "Gerardo Deustúa Hernández - A017\n");
-    fprintf(fptr, "José Luis Zago Guevara - A01736278\n");
+    fprintf(fptr, "José Luis Zago Guevara - A01736278\n\n");
 
     // Paralelismo
+    unsigned long long total_leidas = 0;
+    unsigned long long total_escritas = 0;
     double start_time = omp_get_wtime();
+
     omp_set_nested(1);
 
-    #pragma omp parallel for
-        for (int i = 0; i < 5; i++) {
+    #pragma omp parallel for reduction(+:total_leidas, total_escritas)
+        for (int i = 0; i < 10; i++) {
             char originalFile[50];
             char grayFile[50];
             char invHColorFile[50];
@@ -31,6 +34,8 @@ int main(){
             char invHGrayFile[50];
             char invVGrayFile[50];
             char blurFile[50];
+            int leidas = 0;
+            int escritas = 0;
 
             snprintf(originalFile, sizeof(originalFile), "./img/img_%d.bmp", i);
             snprintf(grayFile, sizeof(grayFile), "img_%d_gray", i);
@@ -40,16 +45,35 @@ int main(){
             snprintf(invVGrayFile, sizeof(invVGrayFile), "img_%d_invVGray", i);
             snprintf(blurFile, sizeof(blurFile), "img_%d_blur", i);
 
-            gray_img(grayFile, originalFile, fptr);
-            invH_color_img(invHColorFile, originalFile, fptr);
-            invV_color_img(invVColorFile, originalFile, fptr);
-            invH_gray_img(invHGrayFile, originalFile, fptr);
-            invV_gray_img(invVGrayFile, originalFile, fptr);
-            blur_img(blurFile, originalFile, fptr, 55 + i);
+            gray_img(grayFile, originalFile, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
+            
+            invH_color_img(invHColorFile, originalFile, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
+
+            invV_color_img(invVColorFile, originalFile, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
+            
+            invH_gray_img(invHGrayFile, originalFile, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
+
+            invV_gray_img(invVGrayFile, originalFile, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
+
+            blur_img(blurFile, originalFile, 55 + i, &leidas, &escritas);
+            total_leidas += leidas;
+            total_escritas += escritas;
         }
 
     double end_time = omp_get_wtime();
-    printf("Elapsed time: %f seconds\n", end_time - start_time);
+    fprintf(fptr, "Total de localidades leídas: %llu\n", total_leidas);
+    fprintf(fptr, "Total de localidades escritas: %llu\n", total_escritas);
+    fprintf(fptr, "Tiempo total de procesamiento: %.2f segundos\n", end_time - start_time);
 
     fclose(fptr);
     return 0;
