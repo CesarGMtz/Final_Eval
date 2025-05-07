@@ -7,6 +7,13 @@
 #define NUM_THREADS 13
 
 int main(){
+    int kernel;
+
+    do {
+        printf("Introduce un valor entre 55 y 155 para el efecto de blur: \n");
+        scanf("%d", &kernel);
+    } while (kernel < 55 || kernel > 155);
+
     FILE *fptr;
     char data[80] = "arc1.txt";
 
@@ -27,7 +34,7 @@ int main(){
     double start_time = omp_get_wtime();
 
     #pragma omp parallel for reduction(+:total_leidas, total_escritas)
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             char originalFile[50];
             char grayFile[50];
             char invHColorFile[50];
@@ -66,7 +73,7 @@ int main(){
             total_leidas += leidas;
             total_escritas += escritas;
 
-            blur_img(blurFile, originalFile, 55 + i, &leidas, &escritas);
+            blur_img(blurFile, originalFile, kernel, &leidas, &escritas);
             total_leidas += leidas;
             total_escritas += escritas;
         }

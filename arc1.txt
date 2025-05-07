@@ -4,6 +4,6 @@ José Luis Zago Guevara - A01736278
 
 Total de localidades leídas: 1620000000
 Total de localidades escritas: 1620000000
-Tiempo total de procesamiento: 36.84 segundos
+Tiempo total de procesamiento: 40.51 segundos
 
-MIPS: 1759.10
+MIPS: 1599.76
