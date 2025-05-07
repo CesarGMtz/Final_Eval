@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "transformation_proc.h": "c"
+        "transformation_proc.h": "c",
+        "omp.h": "c"
     }
 }

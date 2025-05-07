@@ -67,14 +67,13 @@ extern void gray_img(char mask[10], char path[80], int *leidas, int *escritas) {
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
     
-    #pragma omp parallel for private(r, g, b, pixel)
-        for (i = 0; i < ancho * alto; i++) {
-            r = arr_in[i * 3 + 2];
-            g = arr_in[i * 3 + 1];
-            b = arr_in[i * 3 + 0];
-            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-            arr_out[i] = pixel;
-        }
+    for (i = 0; i < ancho * alto; i++) {
+        r = arr_in[i * 3 + 2];
+        g = arr_in[i * 3 + 1];
+        b = arr_in[i * 3 + 0];
+        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+        arr_out[i] = pixel;
+    }
 
     for (i = 0; i < ancho * alto; i++) {
         fputc(arr_out[i], outputImage);
@@ -120,14 +119,13 @@ extern void invH_gray_img(char mask[10], char path[80], int *leidas, int *escrit
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
    
-    #pragma omp parallel for private(r, g, b, pixel)
-        for (i = 0; i < ancho*alto; i++) {
-            r = arr_in[i * 3 + 2];
-            g = arr_in[i * 3 + 1];
-            b = arr_in[i * 3 + 0];
-            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-            arr_out[i] = pixel;
-        }
+    for (i = 0; i < ancho*alto; i++) {
+        r = arr_in[i * 3 + 2];
+        g = arr_in[i * 3 + 1];
+        b = arr_in[i * 3 + 0];
+        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+        arr_out[i] = pixel;
+    }
 
     for (i = 0; i < alto; i++) {
         for (j = ancho; j > 0; j--) {
@@ -179,14 +177,13 @@ extern void invV_gray_img(char mask[10], char path[80], int *leidas, int *escrit
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
    
-    #pragma omp parallel for private(r, g, b, pixel)
-        for (i = 0; i < ancho*alto; i++) {
-            r = arr_in[i * 3 + 2];
-            g = arr_in[i * 3 + 1];
-            b = arr_in[i * 3 + 0];
-            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-            arr_out[i] = pixel;
-        }
+    for (i = 0; i < ancho*alto; i++) {
+        r = arr_in[i * 3 + 2];
+        g = arr_in[i * 3 + 1];
+        b = arr_in[i * 3 + 0];
+        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+        arr_out[i] = pixel;
+    }
 
     for (i = alto - 1; i > 0; i--) {
         for (j = 0; j < ancho; j++) {
@@ -384,31 +381,29 @@ extern void blur_img(char mask[10], char path[80], int kernel, int *leidas, int 
 
     int kernelRadius = (kernel - 1) / 2;
 
-    #pragma omp parallel for collapse(2)
-        for (int y = 0; y < alto; y++) {
-            for (int x = 0; x < ancho; x++) {
-                unsigned int bSum = 0, gSum = 0, rSum = 0;
-                int count = 0;
+    for (int y = 0; y < alto; y++) {
+        for (int x = 0; x < ancho; x++) {
+            unsigned int bSum = 0, gSum = 0, rSum = 0;
+            int count = 0;
 
-                for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
-                    int nx = x + kx;
-                    if (nx >= 0 && nx < ancho) {
-                        int index = y * ancho + nx;
-                        bSum += arr_in_b[index];
-                        gSum += arr_in_g[index];
-                        rSum += arr_in_r[index];
-                        count++;
-                    }
+            for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
+                int nx = x + kx;
+                if (nx >= 0 && nx < ancho) {
+                    int index = y * ancho + nx;
+                    bSum += arr_in_b[index];
+                    gSum += arr_in_g[index];
+                    rSum += arr_in_r[index];
+                    count++;
                 }
-
-                int index = y * ancho + x;
-                arr_out_b[index] = bSum / count;
-                arr_out_g[index] = gSum / count;
-                arr_out_r[index] = rSum / count;
             }
-        }
 
-    #pragma omp parallel for collapse(2)
+            int index = y * ancho + x;
+            arr_out_b[index] = bSum / count;
+            arr_out_g[index] = gSum / count;
+            arr_out_r[index] = rSum / count;
+        }
+    }
+
     for (int y = 0; y < alto; y++) {
         for (int x = 0; x < ancho; x++) {
             unsigned int bSum = 0, gSum = 0, rSum = 0;
