@@ -34,7 +34,7 @@ int main(){
     double start_time = omp_get_wtime();
 
     #pragma omp parallel for reduction(+:total_leidas, total_escritas)
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             char originalFile[50];
             char grayFile[50];
             char invHColorFile[50];
