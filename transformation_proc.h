@@ -61,8 +61,8 @@ extern void gray_img(char mask[10], char path[80], int *leidas, int *escritas) {
 
     int tam = ancho * alto;
 
-    unsigned char* arr_in = (unsigned char*)malloc(tam * 3);
-    unsigned char* arr_out = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_in = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
 
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
@@ -113,13 +113,13 @@ extern void invH_gray_img(char mask[10], char path[80], int *leidas, int *escrit
     int padding = (4 - (ancho * 3) % 4) % 4;
     int tam = ancho * alto;
 
-    unsigned char* arr_in = (unsigned char*)malloc(tam * 3);
-    unsigned char* arr_out = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_in = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
     
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
    
-    for (i = 0; i < ancho*alto; i++) {
+    for (i = 0; i < ancho * alto; i++) {
         r = arr_in[i * 3 + 2];
         g = arr_in[i * 3 + 1];
         b = arr_in[i * 3 + 0];
@@ -171,8 +171,8 @@ extern void invV_gray_img(char mask[10], char path[80], int *leidas, int *escrit
     int padding = (4 - (ancho * 3) % 4) % 4;
     int tam = ancho * alto;
 
-    unsigned char* arr_in = (unsigned char*)malloc(tam * 3);
-    unsigned char* arr_out = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_in = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
     
     fread(arr_in, sizeof(unsigned char), tam * 3, image);
     *leidas = tam * 3;
@@ -229,15 +229,15 @@ extern void invH_color_img(char mask[10], char path[80], int *leidas, int *escri
     int padding = (4 - (ancho * 3) % 4) % 4;
     int tam = ancho * alto;
 
-    unsigned char* arr_in_b = (unsigned char*)malloc(tam);
-    unsigned char* arr_in_g = (unsigned char*)malloc(tam);
-    unsigned char* arr_in_r = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_b = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_g = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_r = (unsigned char*)malloc(tam);
    
     for (int i = 0; i < alto; i++) {
         for (int j = 0; j < ancho; j++) {
-            unsigned char b = fgetc(image);
-            unsigned char g = fgetc(image);
-            unsigned char r = fgetc(image);
+            b = fgetc(image);
+            g = fgetc(image);
+            r = fgetc(image);
 
             int index = (i * ancho) + j;
             arr_in_b[index] = b;
@@ -293,15 +293,15 @@ extern void invV_color_img(char mask[10], char path[80], int *leidas, int *escri
     int padding = (4 - (ancho * 3) % 4) % 4;
     int tam = ancho * alto;
 
-    unsigned char* arr_in_b = (unsigned char*)malloc(tam);
-    unsigned char* arr_in_g = (unsigned char*)malloc(tam);
-    unsigned char* arr_in_r = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_b = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_g = (unsigned char*)malloc(tam);
+    unsigned char *arr_in_r = (unsigned char*)malloc(tam);
 
     for (int i = 0; i < alto; i++) {
         for (int j = 0; j < ancho; j++) {
-            unsigned char b = fgetc(image);
-            unsigned char g = fgetc(image);
-            unsigned char r = fgetc(image);
+            b = fgetc(image);
+            g = fgetc(image);
+            r = fgetc(image);
 
             int index = (i * ancho) + j;
             arr_in_b[index] = b;
@@ -315,9 +315,10 @@ extern void invV_color_img(char mask[10], char path[80], int *leidas, int *escri
 
     for (i = alto - 1; i > 0; i--) {
         for (k = 0; k < ancho; k++) {
-            fputc(arr_in_b[(i * ancho) + k], outputImage);
-            fputc(arr_in_g[(i * ancho) + k], outputImage);
-            fputc(arr_in_r[(i * ancho) + k], outputImage);
+            int index = (i * ancho) + k;
+            fputc(arr_in_b[index], outputImage);
+            fputc(arr_in_g[index], outputImage);
+            fputc(arr_in_r[index], outputImage);
         }
         for (int p = 0; p < padding; p++) {
             fputc(0x00, outputImage);
@@ -357,18 +358,18 @@ extern void blur_img(char mask[10], char path[80], int kernel, int *leidas, int 
     int padding = (4 - (ancho * 3) % 4) % 4;
     int tam = ancho * alto;
 
-    unsigned char* arr_in_b = malloc(tam);
-    unsigned char* arr_in_g = malloc(tam);
-    unsigned char* arr_in_r = malloc(tam);
-    unsigned char* arr_out_b = malloc(tam);
-    unsigned char* arr_out_g = malloc(tam);
-    unsigned char* arr_out_r = malloc(tam);
+    unsigned char *arr_in_b = malloc(tam);
+    unsigned char *arr_in_g = malloc(tam);
+    unsigned char *arr_in_r = malloc(tam);
+    unsigned char *arr_out_b = malloc(tam);
+    unsigned char *arr_out_g = malloc(tam);
+    unsigned char *arr_out_r = malloc(tam);
 
     for (int i = 0; i < alto; i++) {
         for (int j = 0; j < ancho; j++) {
-            unsigned char b = fgetc(image);
-            unsigned char g = fgetc(image);
-            unsigned char r = fgetc(image);
+            b = fgetc(image);
+            g = fgetc(image);
+            r = fgetc(image);
 
             int index = (alto - 1 - i) * ancho + j;
             arr_in_b[index] = b;
