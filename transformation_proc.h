@@ -378,7 +378,7 @@ extern void blur_img(char mask[10], char path[80], int kernel, int *leidas, int 
         }
         fseek(image, padding, SEEK_CUR);
     }
-    *leidas = tam * 3;
+    *leidas = (tam * 3) + (kernel * kernel) - 1;
 
     int kernelRadius = (kernel - 1) / 2;
 
