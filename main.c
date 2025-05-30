@@ -4,7 +4,7 @@
 #include <omp.h>
 #include "transformation_proc.h"
 
-#define NUM_THREADS 13
+#define NUM_THREADS 8
 
 int main(){
     int kernel;
@@ -35,13 +35,13 @@ int main(){
 
     #pragma omp parallel for reduction(+:total_leidas, total_escritas)
         for (int i = 0; i < 100; i++) {
-            char originalFile[50];
-            char grayFile[50];
-            char invHColorFile[50];
-            char invVColorFile[50];
-            char invHGrayFile[50];
-            char invVGrayFile[50];
-            char blurFile[50];
+            char originalFile[80];
+            char grayFile[80];
+            char invHColorFile[80];
+            char invVColorFile[80];
+            char invHGrayFile[80];
+            char invVGrayFile[80];
+            char blurFile[80];
             int leidas = 0;
             int escritas = 0;
 
