@@ -204,7 +204,7 @@ class MainWindow(QMainWindow):
         self.set_elided_text(self.output_label, f"Carpeta de salida: {self.output_folder}")
 
         kernel = self.kernel_slider.value()
-        exe_path = os.path.join(project_root, "src", "a.exe") #EN LINUZ CAMBIAR A a.out
+        exe_path = os.path.join(project_root, "src", "a.exe") #EN LINUX CAMBIAR A a.out
 
         if not os.path.exists(exe_path):
             self.info_display.append(f"No se encontró el ejecutable del procesador en: {exe_path}")
@@ -264,6 +264,15 @@ class MainWindow(QMainWindow):
             self.info_display.append(f"  Total de localidades leidas: {leidas}")
             self.info_display.append(f"  Total de localidades escritas: {escritas}")
             self.info_display.append(f"  Tasa total de bytes procesados (bytes/segundo): {rate_bytes}")
+            self.info_display.append("\nComparativa de Costos:")
+            self.info_display.append("Equipo - Precio (USD) - Precio EC2 (USD)")
+            self.info_display.append("Lenovo (i7-14700) - $9.36 - $368.64")
+            self.info_display.append("Lanix (i3-1215U) - $1.72 - $39.94")
+            self.info_display.append("Xtreme PC Gaming (Ryzen 5) - $18.72 - $326.40")
+            self.info_display.append("\nPrecios de los Equipos (MNX):")
+            self.info_display.append("Lenovo (i7-14700) - $37,429")
+            self.info_display.append("Lanix (i3-1215U) - $9,749")
+            self.info_display.append("Xtreme PC Gaming (Ryzen 5) - $12,414")
 
         except FileNotFoundError:
             self.info_display.append(f"Error: No se encontró el archivo de resultados: {arc_file_path}")
@@ -286,7 +295,7 @@ class MainWindow(QMainWindow):
             self.monitor_thread.stop()
 
     def on_monitoring_finished(self):
-        self.info_display.append("Monitoreo de progreso finalizado.")
+        self.info_display.append("\nMonitoreo de progreso finalizado.")
         
     def reset_system(self):
         if self.processor_thread and self.processor_thread.isRunning():
