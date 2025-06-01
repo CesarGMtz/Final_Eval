@@ -1,0 +1,13 @@
+César Guerra Martínez - A01656774
+Gerardo Deustúa Hernández - A01736455
+José Luis Zago Guevara - A01736278
+
+Processed: img_0.bmp
+
+Total de localidades leidas: 1.620030E+08
+Total de localidades escritas: 1.620000E+08
+Tasa total de bytes procesados (bytes/segundo): 3E+01
+
+Tiempo total de procesamiento: 10.26 segundos
+
+MIPS: 631.34
