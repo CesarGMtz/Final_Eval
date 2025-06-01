@@ -1,9 +1,0 @@
-César Guerra Martínez - A01656774
-Gerardo Deustúa Hernández - A01736455
-José Luis Zago Guevara - A01736278
-
-Total de localidades leídas: 16189701600
-Total de localidades escritas: 16187299200
-Tiempo total de procesamiento: 917.27 segundos
-
-MIPS: 705.94
