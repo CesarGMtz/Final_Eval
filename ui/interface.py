@@ -257,13 +257,13 @@ class MainWindow(QMainWindow):
                     leidas = line.split(":")[1].strip()
                 elif "Total de localidades escritas:" in line:
                     escritas = line.split(":")[1].strip()
-                elif "Tasa total de bytes procesados (bytes/segundo):" in line:
+                elif "Tasa total de MB procesados (MB/segundo):" in line:
                     rate_bytes = line.split(":")[1].strip()
 
             self.info_display.append(f"Resultados finales:")
             self.info_display.append(f"  Total de localidades leidas: {leidas}")
             self.info_display.append(f"  Total de localidades escritas: {escritas}")
-            self.info_display.append(f"  Tasa total de bytes procesados (bytes/segundo): {rate_bytes}")
+            self.info_display.append(f"  Tasa total de MB procesados (MB/segundo): {rate_bytes}")
             self.info_display.append("\nComparativa de Costos:")
             self.info_display.append("Equipo - Precio (USD) - Precio EC2 (USD)")
             self.info_display.append("Lenovo (i7-14700) - $9.36 - $368.64")

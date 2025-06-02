@@ -111,7 +111,7 @@ int main(int argc, char *argv[]){
 
     fprintf(fptr, "\nTotal de localidades leidas: %E\n", (double)total_leidas);
     fprintf(fptr, "Total de localidades escritas: %E\n", (double)total_escritas);
-    fprintf(fptr, "Tasa total de bytes procesados (MB/segundo): %.E\n\n", (double)rate_bytes_processed);
+    fprintf(fptr, "Tasa total de MB procesados (MB/segundo): %.E\n\n", (double)rate_bytes_processed);
     fprintf(fptr, "Tiempo total de procesamiento: %.2f segundos\n\n", end_time - start_time);
     fprintf(fptr, "MIPS: %.2f\n", (20 * (total_leidas + total_escritas)) / (1000000 * (end_time - start_time)));
 

@@ -6,8 +6,8 @@ Processed: img_0.bmp
 
 Total de localidades leidas: 1.620030E+08
 Total de localidades escritas: 1.620000E+08
-Tasa total de bytes procesados (bytes/segundo): 3E+01
+Tasa total de MB procesados (MB/segundo): 1E+01
 
-Tiempo total de procesamiento: 10.26 segundos
+Tiempo total de procesamiento: 30.64 segundos
 
-MIPS: 631.34
+MIPS: 211.51
