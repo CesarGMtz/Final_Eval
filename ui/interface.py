@@ -43,38 +43,32 @@ class ProgressMonitorThread(QThread):
     info_update = pyqtSignal(str)
     finished_monitoring = pyqtSignal()
 
-    def __init__(self, arc_file_path, total_expected_images):
+    def __init__(self, output_folder, total_expected_images):
         super().__init__()
-        self.arc_file_path = arc_file_path
-        self.total_expected_images = total_expected_images
+        self.output_folder = output_folder
+        self.total_expected_images = total_expected_images * 6
         self._is_running = True
 
     def run(self):
-        processed_count = 0
-        last_line_read = 0
+        last_count = 0
         while self._is_running:
             try:
-                with open(self.arc_file_path, 'r') as f:
-                    lines = f.readlines()
-                    for i in range(last_line_read, len(lines)):
-                        line = lines[i]
-                        if "Processed: img_" in line:
-                            processed_count += 1
-                            current_file_name = line.replace("Processed: ", "").strip()
-                            self.info_update.emit(f"Procesando archivo: {current_file_name}")
-
-                            if self.total_expected_images > 0:
-                                progress_percent = int((processed_count / self.total_expected_images) * 100)
-                                self.progress.emit(progress_percent)
-                    last_line_read = len(lines)
-            except FileNotFoundError:
-                self.info_update.emit(f"Waiting for {os.path.basename(self.arc_file_path)} to be created...")
+                current_count = 0
+                if os.path.exists(self.output_folder):
+                    current_count = len([name for name in os.listdir(self.output_folder) if os.path.isfile(os.path.join(self.output_folder, name))])
+                if current_count > last_count:
+                    last_count = current_count
+                    if self.total_expected_images > 0:
+                        progress_percent = int((current_count / self.total_expected_images) * 100)
+                        self.progress.emit(progress_percent)
+                        self.info_update.emit(f"Imagenes generadas: {current_count}/{self.total_expected_images}")
+                if self.total_expected_images > 0 and current_count >= self.total_expected_images:
+                    self._is_running = False
+            
             except Exception as e:
-                self.info_update.emit(f"Error reading progress file: {e}")
-
-            if self.total_expected_images > 0 and processed_count >= self.total_expected_images:
-                self._is_running = False
-            time.sleep(0.5)
+                self.info_update.emit(f"Error en el monitoreo de: {e}")
+            
+            time.sleep(1)
         self.finished_monitoring.emit()
     
     def stop(self):
@@ -214,8 +208,16 @@ class MainWindow(QMainWindow):
             with open(arc_file_path, 'w') as f:
                 f.write("")
         except Exception as e:
-            self.info_display.append(f"Error clearing arc1.txt: {e}")
+            self.info_display.append(f"Error limpiando arc1.txt: {e}")
 
+        for file_name in os.listdir(output_image_dir):
+            file_path = os.path.join(output_image_dir, file_name)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                self.info_display.append(f"Error limpiando imágenes del folder: {e}")
+        
         command = [exe_path, self.input_folder, output_image_dir, arc_file_path, str(kernel), str(self.total_images_to_process)]
 
         self.info_display.append("Iniciando procesamiento...")
@@ -229,7 +231,7 @@ class MainWindow(QMainWindow):
         self.processor_thread.error_occurred.connect(self.on_processing_error)
         self.processor_thread.start()
 
-        self.monitor_thread = ProgressMonitorThread(arc_file_path, self.total_images_to_process)
+        self.monitor_thread = ProgressMonitorThread(output_image_dir, self.total_images_to_process)
         self.monitor_thread.progress.connect(self.progress_bar.setValue)
         self.monitor_thread.info_update.connect(self.info_display.append)
         self.monitor_thread.finished_monitoring.connect(self.on_monitoring_finished)
@@ -237,7 +239,7 @@ class MainWindow(QMainWindow):
 
     def on_processing_finished(self, return_code):
         self.info_display.append("Procesamiento completado por el ejecutable.")
-        if self.total_images_to_process > 0:
+        if self.monitor_thread and not self.monitor_thread.isRunning():
             self.progress_bar.setValue(100)
 
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -284,7 +286,7 @@ class MainWindow(QMainWindow):
             self.reset_button.setEnabled(True)
             if hasattr(self, 'monitor_thread') and self.monitor_thread.isRunning():
                 self.monitor_thread.stop()
-
+                self.monitor_thread.wait()
 
     def on_processing_error(self, message):
         self.info_display.append(message)
@@ -293,9 +295,11 @@ class MainWindow(QMainWindow):
         self.reset_button.setEnabled(True) 
         if hasattr(self, 'monitor_thread') and self.monitor_thread.isRunning():
             self.monitor_thread.stop()
+            self.monitor_thread.wait()
 
     def on_monitoring_finished(self):
         self.info_display.append("\nMonitoreo de progreso finalizado.")
+        self.progress_bar.setValue(100)
         
     def reset_system(self):
         if self.processor_thread and self.processor_thread.isRunning():
@@ -331,7 +335,15 @@ class MainWindow(QMainWindow):
                     f.write("")
             except Exception as e:
                 self.info_display.append(f"Error al limpiar arc1.txt: {e}")
-
+        output_image_dir = os.path.join(project_root, "r_img")
+        if os.path.exists(output_image_dir):
+            for file_name in os.listdir(output_image_dir):
+                file_path = os.path.join(output_image_dir, file_name)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    self.info_display.append(f"Error al limpiar la carpeta de salida: {e}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

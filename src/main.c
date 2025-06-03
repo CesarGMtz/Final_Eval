@@ -92,12 +92,6 @@ int main(int argc, char *argv[]){
             blur_img(blurFile, originalFile, kernel, output_dir, &leidas, &escritas);
             total_leidas += leidas;
             total_escritas += escritas;
-
-            #pragma omp critical
-            {
-                fprintf(fptr, "Processed: img_%d.bmp\n", i);
-                fflush(fptr);
-            }
         }
 
     double end_time = omp_get_wtime();
