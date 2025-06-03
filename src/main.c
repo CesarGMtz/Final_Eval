@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]){
     if (argc != 6) {
-        fprintf(stderr, "Usage: %s <input_image_directory> <output_image_directory> <arc_file_path> <kernel>\n", argv[0]);
+        fprintf(stderr, "Uso: %s <input_image_directory> <output_image_directory> <arc_file_path> <kernel>\n", argv[0]);
         return 1;
     }
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]){
 
     fptr = fopen(arc_file_path, "w");
     if (fptr == NULL){
-        printf("Error: Could not open arc file at %s\n", arc_file_path);
+        printf("Error: No pudo abrir arc1.txt en %s\n", arc_file_path);
         exit(1);
     }
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
 
     fptr = fopen(arc_file_path, "a");
     if (fptr == NULL){
-        printf("Error: Could not open arc file at %s\n", arc_file_path);
+        printf("Error: No pudo abrir arc1.txt en %s\n", arc_file_path);
         exit(1);
     }
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
 
             FILE *check_file = fopen(originalFile, "rb");
             if (check_file == NULL) {
-                fprintf(stderr, "Warning: Skipping non-existent file %s\n", originalFile);
+                fprintf(stderr, "Warning: Saltando archivo inexistente %s\n", originalFile);
                 continue;
             }
 

@@ -48,11 +48,11 @@ extern void gray_img(char mask[10], char path[80], const char *output_dir, int *
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -75,7 +75,7 @@ extern void gray_img(char mask[10], char path[80], const char *output_dir, int *
     unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in gray_img.\n");
+        fprintf(stderr, "Fallo en malloc gray_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
@@ -116,11 +116,11 @@ extern void invH_gray_img(char mask[10], char path[80], const char *output_dir, 
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -146,7 +146,7 @@ extern void invH_gray_img(char mask[10], char path[80], const char *output_dir, 
     unsigned char *arr_out = (unsigned char*)malloc(tam_bytes);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invH_gray_img.\n");
+        fprintf(stderr, "Fallo en malloc invH_gray_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
@@ -198,11 +198,11 @@ extern void invV_gray_img(char mask[10], char path[80], const char *output_dir, 
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -228,7 +228,7 @@ extern void invV_gray_img(char mask[10], char path[80], const char *output_dir, 
     unsigned char *arr_out = (unsigned char*)malloc(tam_bytes);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invV_gray_img.\n");
+        fprintf(stderr, "Fallo en malloc invV_gray_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
@@ -281,11 +281,11 @@ extern void invH_color_img(char mask[10], char path[80], const char *output_dir,
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -310,7 +310,7 @@ extern void invH_color_img(char mask[10], char path[80], const char *output_dir,
     unsigned char *arr_out = (unsigned char*)malloc(tam);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invH_color_img.\n");
+        fprintf(stderr, "Fallo en malloc invH_color_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
@@ -359,11 +359,11 @@ extern void invV_color_img(char mask[10], char path[80], const char *output_dir,
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -388,7 +388,7 @@ extern void invV_color_img(char mask[10], char path[80], const char *output_dir,
     unsigned char *arr_out = (unsigned char*)malloc(tam);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invV_color_img.\n");
+        fprintf(stderr, "Fallo en malloc invV_color_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
@@ -425,11 +425,11 @@ extern void blur_img(char mask[10], char path[80], int kernel, const char *outpu
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -456,7 +456,7 @@ extern void blur_img(char mask[10], char path[80], int kernel, const char *outpu
     unsigned char *arr_out = (unsigned char*)malloc(tam_pixels * 3);
 
     if (arr_in == NULL || arr_temp == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in blur_img.\n");
+        fprintf(stderr, "Fallo en malloc blur_img.\n");
         fclose(image);
         fclose(outputImage);
         free(arr_in);
