@@ -1,0 +1,21 @@
+#!/bin/bash
+
+declare -A HOSTS_SLOTS=(
+  ["ub0"]=7
+  ["ub1"]=3
+  ["ub2"]=7
+)
+
+MACHINEFILE="../src/machinefile"
+> "$MACHINEFILE"
+
+TOTAL_SLOTS=0
+
+for HOST in "${!HOSTS_SLOTS[@]}"; do
+  if ping -c 1 -W 1 "$HOST" &> /dev/null; then
+    echo "$HOST slots=${HOSTS_SLOTS[$HOST]}" >> "$MACHINEFILE"
+    (( TOTAL_SLOTS += HOSTS_SLOTS[$HOST] ))
+  fi
+done
+
+echo "$TOTAL_SLOTS"
