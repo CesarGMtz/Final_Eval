@@ -5,8 +5,8 @@ import subprocess
 import re
 
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QProgressBar, QTextEdit, QAction, QSizePolicy,
-    QSlider, QHBoxLayout
+   QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QProgressBar, QTextEdit, QAction, QSizePolicy,
+   QSlider, QHBoxLayout
 )
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFontMetrics
@@ -25,7 +25,6 @@ class ProcessorThread(QThread):
     def run(self):
         try:
             result = subprocess.run(self.command, capture_output=True, text=True, cwd=os.path.join(self.project_root, "src"))
-
             if result.returncode != 0:
                 error_message = f"Error in processing:\n"
                 if result.stderr:
@@ -33,7 +32,6 @@ class ProcessorThread(QThread):
                 error_message += f"Process finished with error code: {result.returncode}"
                 self.error_occurred.emit(error_message)
             self.processing_finished.emit(result.returncode)
-
         except Exception as e:
             self.error_occurred.emit(f"Failed to execute process: {e}")
 
@@ -64,29 +62,25 @@ class ProgressMonitorThread(QThread):
                         self.info_update.emit(f"Imagenes generadas: {current_count}/{self.total_expected_images}")
                 if self.total_expected_images > 0 and current_count >= self.total_expected_images:
                     self._is_running = False
-            
             except Exception as e:
                 self.info_update.emit(f"Error en el monitoreo de: {e}")
-            
             time.sleep(1)
         self.finished_monitoring.emit()
-    
+
     def stop(self):
         self._is_running = False
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Procesador de Archivos")
-
         self.input_folder = ""
         self.output_folder = ""
         self.total_images_to_process = 0
-        
         self.processor_thread = None
         self.monitor_thread = None
 
-        # Layout principal
         main_widget = QWidget()
         layout = QVBoxLayout()
 
@@ -96,8 +90,7 @@ class MainWindow(QMainWindow):
         self.input_label.setWordWrap(False)
         self.input_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
-        self.output_label = QLabel("Carpeta de salida: No determinada") 
-
+        self.output_label = QLabel("Carpeta de salida: No determinada")
         self.select_input_button = QPushButton("Seleccionar carpeta de entrada")
         self.select_input_button.clicked.connect(self.select_input_folder)
 
@@ -122,7 +115,7 @@ class MainWindow(QMainWindow):
 
         self.process_button = QPushButton("Iniciar procesamiento")
         self.process_button.clicked.connect(self.start_processing)
-        
+
         self.reset_button = QPushButton("Reiniciar Sistema")
         self.reset_button.clicked.connect(self.reset_system)
 
@@ -140,16 +133,13 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(layout)
         self.setCentralWidget(main_widget)
 
-        # Menú
         menubar = self.menuBar()
         team_menu = menubar.addMenu("Equipo")
-
         team_members = [
-            "César Guerra Martínez | A01656774", 
-            "Gerardo Dehustúa Hernández | A01736455", 
+            "César Guerra Martínez | A01656774",
+            "Gerardo Dehustúa Hernández | A01736455",
             "José Luis Zago Guevara | A01736278"
         ]
-
         for name in team_members:
             member_action = QAction(name, self)
             team_menu.addAction(member_action)
@@ -170,7 +160,6 @@ class MainWindow(QMainWindow):
             self.set_elided_text(self.input_label, f"Carpeta de entrada: {folder}")
             self.count_images_in_input_folder()
 
-
     def count_images_in_input_folder(self):
         self.total_images_to_process = 0
         if os.path.isdir(self.input_folder):
@@ -178,6 +167,18 @@ class MainWindow(QMainWindow):
                 if re.match(r"\d+\.bmp", filename):
                     self.total_images_to_process += 1
         self.info_display.append(f"Se encontraron {self.total_images_to_process} imágenes BMP en la carpeta de entrada.")
+
+    def generate_machinefile(self):
+        current_script_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_script_dir)
+        script_path = os.path.join(project_root, "src", "check_hosts.sh")
+        result = subprocess.run(["bash", script_path], capture_output=True, text=True)
+        self.info_display.append(result.stdout)
+        if result.stderr:
+            self.info_display.append("Errores durante la generación del machinefile:")
+            self.info_display.append(result.stderr)
+        machinefile_path = os.path.join(project_root, "src", "machinefile")
+        return os.path.exists(machinefile_path) and os.path.getsize(machinefile_path) > 0
 
     def start_processing(self):
         if not self.input_folder:
@@ -217,11 +218,20 @@ class MainWindow(QMainWindow):
                     os.unlink(file_path)
             except Exception as e:
                 self.info_display.append(f"Error limpiando imágenes del folder: {e}")
-        
-        #command = [exe_path, self.input_folder, output_image_dir, arc_file_path, str(kernel), str(self.total_images_to_process)]
-        
-        num_procs = 17
+
+        # Ejecutar script bash para generar machinefile y obtener NUM_SLOTS
+        machinefile_script = os.path.join(project_root, "src", "check_hosts.sh")  # Ajusta la ruta si es necesario
+
+        try:
+            output = subprocess.check_output(["bash", machinefile_script], text=True)
+            num_procs = int(output.strip())
+            self.info_display.append(f"Número de slots activos detectados: {num_procs}")
+        except Exception as e:
+            self.info_display.append(f"Error al obtener número de slots: {e}")
+            num_procs = 1  # fallback si falla la detección
+
         machinefile_path = os.path.join(project_root, "src", "machinefile")
+
         command = [
             "mpiexec",
             "-n", str(num_procs),
@@ -233,7 +243,6 @@ class MainWindow(QMainWindow):
             str(kernel),
             str(self.total_images_to_process)
         ]
-
 
         self.info_display.append("Iniciando procesamiento...")
         self.progress_bar.setValue(0)
@@ -252,6 +261,7 @@ class MainWindow(QMainWindow):
         self.monitor_thread.finished_monitoring.connect(self.on_monitoring_finished)
         self.monitor_thread.start()
 
+
     def on_processing_finished(self, return_code):
         self.info_display.append("Procesamiento completado por el ejecutable.")
         if self.monitor_thread and not self.monitor_thread.isRunning():
@@ -261,45 +271,30 @@ class MainWindow(QMainWindow):
         project_root = os.path.dirname(current_script_dir)
         arc_file_path = os.path.join(project_root, "src", "arc1.txt")
 
-        leidas = "N/A"
-        escritas = "N/A"
-        rate_bytes = "N/A"
-
         try:
             with open(arc_file_path, 'r') as f:
                 arc_content = f.readlines()
 
+            results = {"leidas": "N/A", "escritas": "N/A", "tasa": "N/A"}
             for line in arc_content:
                 if "Localidades leidas:" in line:
-                    leidas = line.split(":")[1].strip()
-                elif "localidades escritas:" in line:
-                    escritas = line.split(":")[1].strip()
+                    results["leidas"] = line.split(":")[1].strip()
+                elif "Localidades escritas:" in line:
+                    results["escritas"] = line.split(":")[1].strip()
                 elif "Tasa MB/s:" in line:
-                    rate_bytes = line.split(":")[1].strip()
+                    results["tasa"] = line.split(":")[1].strip()
 
-            self.info_display.append(f"Resultados finales:")
-            self.info_display.append(f"  Total de localidades leidas: {leidas}")
-            self.info_display.append(f"  Total de localidades escritas: {escritas}")
-            self.info_display.append(f"  Tasa total de MB procesados (MB/segundo): {rate_bytes}")
-            self.info_display.append("\nComparativa de Costos:")
-            self.info_display.append("Equipo - Precio (USD) - Precio EC2 (USD)")
-            self.info_display.append("Lenovo (i7-14700) - $9.36 - $368.64")
-            self.info_display.append("Lanix (i3-1215U) - $1.72 - $39.94")
-            self.info_display.append("Xtreme PC Gaming (Ryzen 5) - $18.72 - $326.40")
-            self.info_display.append("\nPrecios de los Equipos (MNX):")
-            self.info_display.append("Lenovo (i7-14700) - $37,429")
-            self.info_display.append("Lanix (i3-1215U) - $9,749")
-            self.info_display.append("Xtreme PC Gaming (Ryzen 5) - $12,414")
-
-        except FileNotFoundError:
-            self.info_display.append(f"Error: No se encontró el archivo de resultados: {arc_file_path}")
-        except Exception as file_e:
-            self.info_display.append(f"Error al leer o parsear arc1.txt: {file_e}")
+            self.info_display.append("\nResultados finales:")
+            self.info_display.append(f"  Total de localidades leidas: {results['leidas']}")
+            self.info_display.append(f"  Total de localidades escritas: {results['escritas']}")
+            self.info_display.append(f"  Tasa total de MB procesados (MB/segundo): {results['tasa']}")
+        except Exception as e:
+            self.info_display.append(f"Error leyendo arc1.txt: {e}")
         finally:
             self.select_input_button.setEnabled(True)
             self.process_button.setEnabled(True)
             self.reset_button.setEnabled(True)
-            if hasattr(self, 'monitor_thread') and self.monitor_thread.isRunning():
+            if self.monitor_thread and self.monitor_thread.isRunning():
                 self.monitor_thread.stop()
                 self.monitor_thread.wait()
 
@@ -307,28 +302,27 @@ class MainWindow(QMainWindow):
         self.info_display.append(message)
         self.select_input_button.setEnabled(True)
         self.process_button.setEnabled(True)
-        self.reset_button.setEnabled(True) 
-        if hasattr(self, 'monitor_thread') and self.monitor_thread.isRunning():
+        self.reset_button.setEnabled(True)
+        if self.monitor_thread and self.monitor_thread.isRunning():
             self.monitor_thread.stop()
             self.monitor_thread.wait()
 
     def on_monitoring_finished(self):
         self.info_display.append("\nMonitoreo de progreso finalizado.")
         self.progress_bar.setValue(100)
-        
+
     def reset_system(self):
         if self.processor_thread and self.processor_thread.isRunning():
             self.processor_thread.quit()
             self.processor_thread.wait()
             self.info_display.append("Procesamiento detenido.")
-        
+
         if self.monitor_thread and self.monitor_thread.isRunning():
             self.monitor_thread.stop()
             self.monitor_thread.quit()
             self.monitor_thread.wait()
             self.info_display.append("Monitoreo detenido.")
 
-        # Elementos
         self.input_folder = ""
         self.output_folder = ""
         self.total_images_to_process = 0
@@ -341,29 +335,9 @@ class MainWindow(QMainWindow):
         self.reset_button.setEnabled(True)
         self.kernel_slider.setValue(55)
 
-        current_script_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(current_script_dir)
-        arc_file_path = os.path.join(project_root, "src", "arc1.txt")
-        if os.path.exists(arc_file_path):
-            try:
-                with open(arc_file_path, 'w') as f:
-                    f.write("")
-            except Exception as e:
-                self.info_display.append(f"Error al limpiar arc1.txt: {e}")
-        output_image_dir = os.path.join(project_root, "r_img")
-        if os.path.exists(output_image_dir):
-            for file_name in os.listdir(output_image_dir):
-                file_path = os.path.join(output_image_dir, file_name)
-                try:
-                    if os.path.isfile(file_path):
-                        os.unlink(file_path)
-                except Exception as e:
-                    self.info_display.append(f"Error al limpiar la carpeta de salida: {e}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.resize(600, 500)
     window.show()
     sys.exit(app.exec_())
-    
