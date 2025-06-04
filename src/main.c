@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
         }
 
         fprintf(fptr_append, "[Nodo %d] (Tiempo Máximo)\n", rank);
-        fprintf(fptr_append, "Localidades leídas: %E\n", (double)total_leidas);
+        fprintf(fptr_append, "Localidades leidas: %E\n", (double)total_leidas);
         fprintf(fptr_append, "Localidades escritas: %E\n", (double)total_escritas);
         fprintf(fptr_append, "Tiempo procesamiento: %.2f s\n", total_processing_time);
         fprintf(fptr_append, "Tasa MB/s: %.2f\n", rate_bytes_processed);
