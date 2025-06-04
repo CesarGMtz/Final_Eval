@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]){
     if (argc != 6) {
-        fprintf(stderr, "Usage: %s <input_image_directory> <output_image_directory> <arc_file_path> <kernel>\n", argv[0]);
+        fprintf(stderr, "Uso: %s <input_image_directory> <output_image_directory> <arc_file_path> <kernel>\n", argv[0]);
         return 1;
     }
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]){
 
     fptr = fopen(arc_file_path, "w");
     if (fptr == NULL){
-        printf("Error: Could not open arc file at %s\n", arc_file_path);
+        printf("Error: No pudo abrir arc1.txt en %s\n", arc_file_path);
         exit(1);
     }
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
 
     fptr = fopen(arc_file_path, "a");
     if (fptr == NULL){
-        printf("Error: Could not open arc file at %s\n", arc_file_path);
+        printf("Error: No pudo abrir arc1.txt en %s\n", arc_file_path);
         exit(1);
     }
 
@@ -55,17 +55,17 @@ int main(int argc, char *argv[]){
             int leidas = 0;
             int escritas = 0;
 
-            snprintf(originalFile, sizeof(originalFile), "%s/img_%d.bmp", input_dir, i);
-            snprintf(grayFile, sizeof(grayFile), "img_%d_gray", i);
-            snprintf(invHColorFile, sizeof(invHColorFile), "img_%d_invHColor", i);
-            snprintf(invVColorFile, sizeof(invVColorFile), "img_%d_invVColor", i);
-            snprintf(invHGrayFile, sizeof(invHGrayFile), "img_%d_invHGray", i);
-            snprintf(invVGrayFile, sizeof(invVGrayFile), "img_%d_invVGray", i);
-            snprintf(blurFile, sizeof(blurFile), "img_%d_blur", i);
+            snprintf(originalFile, sizeof(originalFile), "%s/%d.bmp", input_dir, i);
+            snprintf(grayFile, sizeof(grayFile), "%d_gray", i);
+            snprintf(invHColorFile, sizeof(invHColorFile), "%d_invHColor", i);
+            snprintf(invVColorFile, sizeof(invVColorFile), "%d_invVColor", i);
+            snprintf(invHGrayFile, sizeof(invHGrayFile), "%d_invHGray", i);
+            snprintf(invVGrayFile, sizeof(invVGrayFile), "%d_invVGray", i);
+            snprintf(blurFile, sizeof(blurFile), "%d_blur", i);
 
             FILE *check_file = fopen(originalFile, "rb");
             if (check_file == NULL) {
-                fprintf(stderr, "Warning: Skipping non-existent file %s\n", originalFile);
+                fprintf(stderr, "Warning: Saltando archivo inexistente %s\n", originalFile);
                 continue;
             }
 
@@ -92,12 +92,6 @@ int main(int argc, char *argv[]){
             blur_img(blurFile, originalFile, kernel, output_dir, &leidas, &escritas);
             total_leidas += leidas;
             total_escritas += escritas;
-
-            #pragma omp critical
-            {
-                fprintf(fptr, "Processed: img_%d.bmp\n", i);
-                fflush(fptr);
-            }
         }
 
     double end_time = omp_get_wtime();

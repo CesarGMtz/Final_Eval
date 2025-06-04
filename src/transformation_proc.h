@@ -48,11 +48,11 @@ extern void gray_img(char mask[10], char path[80], const char *output_dir, int *
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -75,9 +75,11 @@ extern void gray_img(char mask[10], char path[80], const char *output_dir, int *
     unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in gray_img.\n");
+        fprintf(stderr, "Fallo en malloc gray_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_out);
         return;
     }
 
@@ -89,14 +91,12 @@ extern void gray_img(char mask[10], char path[80], const char *output_dir, int *
         g = arr_in[i * 3 + 1];
         b = arr_in[i * 3 + 0];
         pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-        arr_out[i] = pixel;
+        arr_out[i * 3 + 0] = pixel;
+        arr_out[i * 3 + 1] = pixel;
+        arr_out[i * 3 + 2] = pixel;
     }
 
-    for (i = 0; i < ancho * alto; i++) {
-        fputc(arr_out[i], outputImage);
-        fputc(arr_out[i], outputImage);
-        fputc(arr_out[i], outputImage);
-    }
+    fwrite(arr_out, sizeof(unsigned char), tam * 3, outputImage);
     *escritas = tam * 3;
 
     free(arr_in);
@@ -116,11 +116,11 @@ extern void invH_gray_img(char mask[10], char path[80], const char *output_dir, 
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -138,41 +138,48 @@ extern void invH_gray_img(char mask[10], char path[80], const char *output_dir, 
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
 
     int padding = (4 - (ancho * 3) % 4) % 4;
-    int tam = ancho * alto;
+    int row_size_padded = (ancho * 3) + padding;
+    int tam_pixels = ancho * alto;
+    int tam_bytes = alto * row_size_padded;
 
-    unsigned char *arr_in = (unsigned char*)malloc(tam * 3);
-    unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_in = (unsigned char*)malloc(tam_pixels * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam_bytes);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invH_gray_img.\n");
+        fprintf(stderr, "Fallo en malloc invH_gray_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_out);
         return;
     }
-    
-    fread(arr_in, sizeof(unsigned char), tam * 3, image);
-    *leidas = tam * 3;
-   
-    for (i = 0; i < ancho * alto; i++) {
-        r = arr_in[i * 3 + 2];
-        g = arr_in[i * 3 + 1];
-        b = arr_in[i * 3 + 0];
-        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-        arr_out[i] = pixel;
-    }
 
+    fseek(image, 54, SEEK_SET);
     for (i = 0; i < alto; i++) {
-        for (j = ancho; j > 0; j--) {
-            int index = (i * ancho) + j;
-            fputc(arr_out[index], outputImage);
-            fputc(arr_out[index], outputImage);
-            fputc(arr_out[index], outputImage);
+        fread(arr_in + (i * ancho * 3), sizeof(unsigned char), ancho * 3, image);
+        fseek(image, padding, SEEK_CUR);
+    }
+    *leidas = tam_pixels * 3;
+   
+    for (i = 0; i < alto; i++) {
+        for (j = 0; j < ancho; j++) {
+            int index = (i * ancho + j) * 3;
+            b = arr_in[index + 0];
+            g = arr_in[index + 1];
+            r = arr_in[index + 2];
+            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+            int dest_index = (i * row_size_padded) + ((ancho - 1 - j) * 3);
+            arr_out[dest_index + 0] = pixel;
+            arr_out[dest_index + 1] = pixel;
+            arr_out[dest_index + 2] = pixel;
         }
         for (int p = 0; p < padding; p++) {
-            fputc(0x00, outputImage);
+            arr_out[(i * row_size_padded) + (ancho * 3) + p] = 0x00;
         }
     }
-    *escritas = tam * 3;
+
+    fwrite(arr_out, sizeof(unsigned char), tam_bytes, outputImage);
+    *escritas = tam_bytes;
 
     free(arr_in);
     free(arr_out);
@@ -191,11 +198,11 @@ extern void invV_gray_img(char mask[10], char path[80], const char *output_dir, 
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -213,41 +220,49 @@ extern void invV_gray_img(char mask[10], char path[80], const char *output_dir, 
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
 
     int padding = (4 - (ancho * 3) % 4) % 4;
-    int tam = ancho * alto;
+    int row_size_padded = (ancho * 3) + padding;
+    int tam_pixels = ancho * alto;
+    int tam_bytes = alto * row_size_padded;
 
-    unsigned char *arr_in = (unsigned char*)malloc(tam * 3);
-    unsigned char *arr_out = (unsigned char*)malloc(tam * 3);
+    unsigned char *arr_in = (unsigned char*)malloc(tam_pixels * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam_bytes);
 
     if (arr_in == NULL || arr_out == NULL) {
-        fprintf(stderr, "Memory allocation failed in invV_gray_img.\n");
+        fprintf(stderr, "Fallo en malloc invV_gray_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_out);
         return;
     }
-    
-    fread(arr_in, sizeof(unsigned char), tam * 3, image);
-    *leidas = tam * 3;
-   
-    for (i = 0; i < ancho*alto; i++) {
-        r = arr_in[i * 3 + 2];
-        g = arr_in[i * 3 + 1];
-        b = arr_in[i * 3 + 0];
-        pixel = 0.21 * r + 0.72 * g + 0.07 * b;
-        arr_out[i] = pixel;
-    }
 
-    for (i = alto - 1; i > 0; i--) {
+    fseek(image, 54, SEEK_SET);
+    for (i = 0; i < alto; i++) {
+        fread(arr_in + (i * ancho * 3), sizeof(unsigned char), ancho * 3, image);
+        fseek(image, padding, SEEK_CUR);
+    }
+    *leidas = tam_pixels * 3;
+   
+    for (i = 0; i < alto; i++) {
+        int row_index = alto - 1 - i;
         for (j = 0; j < ancho; j++) {
-            int index = (i * ancho) + j;
-            fputc(arr_out[index], outputImage);
-            fputc(arr_out[index], outputImage);
-            fputc(arr_out[index], outputImage);
+            int index = (row_index * ancho + j) * 3;
+            b = arr_in[index + 0];
+            g = arr_in[index + 1];
+            r = arr_in[index + 2];
+            pixel = 0.21 * r + 0.72 * g + 0.07 * b;
+            int dest_index = (i * row_size_padded) + (j * 3);
+            arr_out[dest_index + 0] = pixel;
+            arr_out[dest_index + 1] = pixel;
+            arr_out[dest_index + 2] = pixel;
         }
         for (int p = 0; p < padding; p++) {
-            fputc(0x00, outputImage);
+            arr_out[(i * row_size_padded) + (ancho * 3) + p] = 0x00;
         }
     }
-    *escritas = tam * 3;
+
+    fwrite(arr_out, sizeof(unsigned char), tam_bytes, outputImage);
+    *escritas = tam_bytes;
 
     free(arr_in);
     free(arr_out);
@@ -266,11 +281,11 @@ extern void invH_color_img(char mask[10], char path[80], const char *output_dir,
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -288,50 +303,47 @@ extern void invH_color_img(char mask[10], char path[80], const char *output_dir,
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
 
     int padding = (4 - (ancho * 3) % 4) % 4;
-    int tam = ancho * alto;
+    int row_size_padded = (ancho * 3) + padding;
+    int tam = alto * row_size_padded;
 
-    unsigned char *arr_in_b = (unsigned char*)malloc(tam);
-    unsigned char *arr_in_g = (unsigned char*)malloc(tam);
-    unsigned char *arr_in_r = (unsigned char*)malloc(tam);
+    unsigned char *arr_in = (unsigned char*)malloc(tam);
+    unsigned char *arr_out = (unsigned char*)malloc(tam);
 
-    if (arr_in_b == NULL || arr_in_g == NULL || arr_in_r == NULL) {
-        fprintf(stderr, "Memory allocation failed in invH_color_img.\n");
+    if (arr_in == NULL || arr_out == NULL) {
+        fprintf(stderr, "Fallo en malloc invH_color_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_out);
         return;
     }
    
+    fseek(image, 54, SEEK_SET); 
+    fread(arr_in, sizeof(unsigned char), tam, image);
+    *leidas = tam;
+
     for (int i = 0; i < alto; i++) {
+        unsigned char *src_row_start = arr_in + (i * row_size_padded);
+        unsigned char *dest_row_start = arr_out + (i * row_size_padded);
         for (int j = 0; j < ancho; j++) {
-            b = fgetc(image);
-            g = fgetc(image);
-            r = fgetc(image);
+            b = src_row_start[j * 3 + 0];
+            g = src_row_start[j * 3 + 1];
+            r = src_row_start[j * 3 + 2];
 
-            int index = (i * ancho) + j;
-            arr_in_b[index] = b;
-            arr_in_g[index] = g;
-            arr_in_r[index] = r;
-        }
-        fseek(image, padding, SEEK_CUR);
-    }
-    *leidas = tam * 3;
-
-    for (i = 0; i < alto; i++) {
-        for (k = ancho; k > 0; k--) {
-            int index = (i * ancho) + k;
-            fputc(arr_in_b[index], outputImage);
-            fputc(arr_in_g[index], outputImage);
-            fputc(arr_in_r[index], outputImage);
+            dest_row_start[(ancho - 1 - j) * 3 + 0] = b;
+            dest_row_start[(ancho - 1 - j) * 3 + 1] = g;
+            dest_row_start[(ancho - 1 - j) * 3 + 2] = r;
         }
         for (int p = 0; p < padding; p++) {
-            fputc(0x00, outputImage);
+            dest_row_start[(ancho * 3) + p] = src_row_start[(ancho * 3) + p];
         }
     }
-    *escritas = tam * 3;
 
-    free(arr_in_b);
-    free(arr_in_g);
-    free(arr_in_r);
+    fwrite(arr_out, sizeof(unsigned char), tam, outputImage);
+    *escritas = tam;
+
+    free(arr_in);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
@@ -347,11 +359,11 @@ extern void invV_color_img(char mask[10], char path[80], const char *output_dir,
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -369,51 +381,35 @@ extern void invV_color_img(char mask[10], char path[80], const char *output_dir,
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
 
     int padding = (4 - (ancho * 3) % 4) % 4;
-    int tam = ancho * alto;
+    int row_size_padded = (ancho * 3) + padding;
+    int tam = alto * row_size_padded;
 
-    unsigned char *arr_in_b = (unsigned char*)malloc(tam);
-    unsigned char *arr_in_g = (unsigned char*)malloc(tam);
-    unsigned char *arr_in_r = (unsigned char*)malloc(tam);
+    unsigned char *arr_in = (unsigned char*)malloc(tam);
+    unsigned char *arr_out = (unsigned char*)malloc(tam);
 
-    if (arr_in_b == NULL || arr_in_g == NULL || arr_in_r == NULL) {
-        fprintf(stderr, "Memory allocation failed in invV_color_img.\n");
+    if (arr_in == NULL || arr_out == NULL) {
+        fprintf(stderr, "Fallo en malloc invV_color_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_out);
         return;
     }
 
+    fseek(image, 54, SEEK_SET);
+    fread(arr_in, sizeof(unsigned char), tam, image);
+    *leidas = tam;
+
     for (int i = 0; i < alto; i++) {
-        for (int j = 0; j < ancho; j++) {
-            b = fgetc(image);
-            g = fgetc(image);
-            r = fgetc(image);
-
-            int index = (i * ancho) + j;
-            arr_in_b[index] = b;
-            arr_in_g[index] = g;
-            arr_in_r[index] = r;
-        }
-        fseek(image, padding, SEEK_CUR);
+        unsigned char *src_row_start = arr_in + ((alto - 1 - i) * row_size_padded);
+        unsigned char *dest_row_start = arr_out + (i * row_size_padded);
+        memcpy(dest_row_start, src_row_start, row_size_padded);
     }
-    *leidas = tam * 3;
+    fwrite(arr_out, sizeof(unsigned char), tam, outputImage);
+    *escritas = tam;
 
-
-    for (i = alto - 1; i > 0; i--) {
-        for (k = 0; k < ancho; k++) {
-            int index = (i * ancho) + k;
-            fputc(arr_in_b[index], outputImage);
-            fputc(arr_in_g[index], outputImage);
-            fputc(arr_in_r[index], outputImage);
-        }
-        for (int p = 0; p < padding; p++) {
-            fputc(0x00, outputImage);
-        }
-    }
-    *escritas = tam * 3;
-
-    free(arr_in_b);
-    free(arr_in_g);
-    free(arr_in_r);
+    free(arr_in);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
@@ -429,11 +425,11 @@ extern void blur_img(char mask[10], char path[80], int kernel, const char *outpu
     outputImage = fopen(output_path,"wb");
 
     if (image == NULL) {
-        fprintf(stderr, "Error: Could not open input image at %s\n", path);
+        fprintf(stderr, "Error: No pudo abrir imagen de input en %s\n", path);
         return;
     }
     if (outputImage == NULL) {
-        fprintf(stderr, "Error: Could not create output image at %s\n", output_path);
+        fprintf(stderr, "Error: No pudo crear imagen de output %s\n", output_path);
         fclose(image);
         return;
     }
@@ -451,105 +447,90 @@ extern void blur_img(char mask[10], char path[80], int kernel, const char *outpu
     alto = (long)xx[24]*65536+(long)xx[23]*256+(long)xx[22];
 
     int padding = (4 - (ancho * 3) % 4) % 4;
-    int tam = ancho * alto;
+    int row_size_padded = (ancho * 3) + padding;
+    int tam_pixels = ancho * alto;
+    int tam_bytes = alto * row_size_padded;
 
-    unsigned char *arr_in_b = malloc(tam);
-    unsigned char *arr_in_g = malloc(tam);
-    unsigned char *arr_in_r = malloc(tam);
-    unsigned char *arr_out_b = malloc(tam);
-    unsigned char *arr_out_g = malloc(tam);
-    unsigned char *arr_out_r = malloc(tam);
+    unsigned char *arr_in = (unsigned char*)malloc(tam_pixels * 3);
+    unsigned char *arr_temp = (unsigned char*)malloc(tam_pixels * 3);
+    unsigned char *arr_out = (unsigned char*)malloc(tam_pixels * 3);
 
-    if (arr_in_b == NULL || arr_in_g == NULL || arr_in_r == NULL ||
-        arr_out_b == NULL || arr_out_g == NULL || arr_out_r == NULL) {
-        fprintf(stderr, "Memory allocation failed in blur_img.\n");
+    if (arr_in == NULL || arr_temp == NULL || arr_out == NULL) {
+        fprintf(stderr, "Fallo en malloc blur_img.\n");
         fclose(image);
         fclose(outputImage);
+        free(arr_in);
+        free(arr_temp);
+        free(arr_out);
         return;
     }
 
+    fseek(image, 54, SEEK_SET);
     for (int i = 0; i < alto; i++) {
-        for (int j = 0; j < ancho; j++) {
-            b = fgetc(image);
-            g = fgetc(image);
-            r = fgetc(image);
-
-            int index = (alto - 1 - i) * ancho + j;
-            arr_in_b[index] = b;
-            arr_in_g[index] = g;
-            arr_in_r[index] = r;
-        }
+        fread(arr_in + (i * ancho * 3), sizeof(unsigned char), ancho * 3, image);
         fseek(image, padding, SEEK_CUR);
     }
-    *leidas = (tam * 3) + (kernel * kernel) - 1;
+    *leidas = (tam_pixels * 3) + (kernel * kernel) - 1;
 
     int kernelRadius = (kernel - 1) / 2;
 
     for (int y = 0; y < alto; y++) {
         for (int x = 0; x < ancho; x++) {
-            unsigned int bSum = 0, gSum = 0, rSum = 0;
+            long bSum = 0, gSum = 0, rSum = 0;
             int count = 0;
 
             for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
                 int nx = x + kx;
                 if (nx >= 0 && nx < ancho) {
-                    int index = y * ancho + nx;
-                    bSum += arr_in_b[index];
-                    gSum += arr_in_g[index];
-                    rSum += arr_in_r[index];
+                    int index =( y * ancho + nx) * 3;
+                    bSum += arr_in[index + 0];
+                    gSum += arr_in[index + 1];
+                    rSum += arr_in[index + 2];
                     count++;
                 }
             }
 
-            int index = y * ancho + x;
-            arr_out_b[index] = bSum / count;
-            arr_out_g[index] = gSum / count;
-            arr_out_r[index] = rSum / count;
+            int index = (y * ancho + x) * 3;
+            arr_temp[index + 0] = (unsigned char)(bSum / count);
+            arr_temp[index + 1] = (unsigned char)(gSum / count);
+            arr_temp[index + 2] = (unsigned char)(rSum / count);
         }
     }
 
     for (int y = 0; y < alto; y++) {
         for (int x = 0; x < ancho; x++) {
-            unsigned int bSum = 0, gSum = 0, rSum = 0;
+            long bSum = 0, gSum = 0, rSum = 0;
             int count = 0;
 
             for (int ky = -kernelRadius; ky <= kernelRadius; ky++) {
                 int ny = y + ky;
                 if (ny >= 0 && ny < alto) {
-                    int index = ny * ancho + x;
-                    bSum += arr_out_b[index];
-                    gSum += arr_out_g[index];
-                    rSum += arr_out_r[index];
+                    int index = (ny * ancho + x) * 3;
+                    bSum += arr_temp[index + 0];
+                    gSum += arr_temp[index + 1];
+                    rSum += arr_temp[index + 2];
                     count++;
                 }
             }
 
-            int index = y * ancho + x;
-            arr_out_b[index] = bSum / count;
-            arr_out_g[index] = gSum / count;
-            arr_out_r[index] = rSum / count;
+            int index = (y * ancho + x) * 3;
+            arr_out[index + 0] = (unsigned char)(bSum / count);
+            arr_out[index + 1] = (unsigned char)(gSum / count);
+            arr_out[index + 2] = (unsigned char)(rSum / count);
         }
     }
 
     for (int i = 0; i < alto; i++) {
-        for (int j = 0; j < ancho; j++) {
-            int index = (alto - 1 - i) * ancho + j;
-            fputc(arr_out_b[index], outputImage);
-            fputc(arr_out_g[index], outputImage);
-            fputc(arr_out_r[index], outputImage);
-        }
+        fwrite(arr_out + (i * ancho * 3), sizeof(unsigned char), ancho * 3, outputImage);
         for (int p = 0; p < padding; p++) {
             fputc(0x00, outputImage);
         }
     }
-    *escritas = tam * 3;
+    *escritas = tam_bytes;
 
-    free(arr_in_b);
-    free(arr_in_g);
-    free(arr_in_r);
-    free(arr_out_b);
-    free(arr_out_g);
-    free(arr_out_r);
+    free(arr_in);
+    free(arr_temp);
+    free(arr_out);
 
     fclose(image);
     fclose(outputImage);
