@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         self.total_images_to_process = 0
         if os.path.isdir(self.input_folder):
             for filename in os.listdir(self.input_folder):
-                if re.match(r"img_\d+\.bmp", filename):
+                if re.match(r"\d+\.bmp", filename):
                     self.total_images_to_process += 1
         self.info_display.append(f"Se encontraron {self.total_images_to_process} imágenes BMP en la carpeta de entrada.")
 

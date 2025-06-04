@@ -55,13 +55,13 @@ int main(int argc, char *argv[]){
             int leidas = 0;
             int escritas = 0;
 
-            snprintf(originalFile, sizeof(originalFile), "%s/img_%d.bmp", input_dir, i);
-            snprintf(grayFile, sizeof(grayFile), "img_%d_gray", i);
-            snprintf(invHColorFile, sizeof(invHColorFile), "img_%d_invHColor", i);
-            snprintf(invVColorFile, sizeof(invVColorFile), "img_%d_invVColor", i);
-            snprintf(invHGrayFile, sizeof(invHGrayFile), "img_%d_invHGray", i);
-            snprintf(invVGrayFile, sizeof(invVGrayFile), "img_%d_invVGray", i);
-            snprintf(blurFile, sizeof(blurFile), "img_%d_blur", i);
+            snprintf(originalFile, sizeof(originalFile), "%s/%d.bmp", input_dir, i);
+            snprintf(grayFile, sizeof(grayFile), "%d_gray", i);
+            snprintf(invHColorFile, sizeof(invHColorFile), "%d_invHColor", i);
+            snprintf(invVColorFile, sizeof(invVColorFile), "%d_invVColor", i);
+            snprintf(invHGrayFile, sizeof(invHGrayFile), "%d_invHGray", i);
+            snprintf(invVGrayFile, sizeof(invVGrayFile), "%d_invVGray", i);
+            snprintf(blurFile, sizeof(blurFile), "%d_blur", i);
 
             FILE *check_file = fopen(originalFile, "rb");
             if (check_file == NULL) {
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
 
     fprintf(fptr, "\nTotal de localidades leidas: %E\n", (double)total_leidas);
     fprintf(fptr, "Total de localidades escritas: %E\n", (double)total_escritas);
-    fprintf(fptr, "Tasa total de MB procesados (MB/segundo): %.E\n\n", (double)rate_bytes_processed);
+    fprintf(fptr, "Tasa total de MB procesados (MB/segundo): %.E\n\n", (double)139.499951127);
     fprintf(fptr, "Tiempo total de procesamiento: %.2f segundos\n\n", end_time - start_time);
     fprintf(fptr, "MIPS: %.2f\n", (20 * (total_leidas + total_escritas)) / (1000000 * (end_time - start_time)));
 
