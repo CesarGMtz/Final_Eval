@@ -198,7 +198,7 @@ class MainWindow(QMainWindow):
         self.set_elided_text(self.output_label, f"Carpeta de salida: {self.output_folder}")
 
         kernel = self.kernel_slider.value()
-        exe_path = os.path.join(project_root, "src", "a.exe") #EN LINUX CAMBIAR A a.out
+        exe_path = os.path.join(project_root, "src", "procesador") 
 
         if not os.path.exists(exe_path):
             self.info_display.append(f"No se encontró el ejecutable del procesador en: {exe_path}")
@@ -218,7 +218,22 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 self.info_display.append(f"Error limpiando imágenes del folder: {e}")
         
-        command = [exe_path, self.input_folder, output_image_dir, arc_file_path, str(kernel), str(self.total_images_to_process)]
+        #command = [exe_path, self.input_folder, output_image_dir, arc_file_path, str(kernel), str(self.total_images_to_process)]
+        
+        num_procs = 17
+        machinefile_path = os.path.join(project_root, "src", "machinefile")
+        command = [
+            "mpiexec",
+            "-n", str(num_procs),
+            "--hostfile", machinefile_path,
+            exe_path,
+            self.input_folder,
+            output_image_dir,
+            arc_file_path,
+            str(kernel),
+            str(self.total_images_to_process)
+        ]
+
 
         self.info_display.append("Iniciando procesamiento...")
         self.progress_bar.setValue(0)
@@ -255,11 +270,11 @@ class MainWindow(QMainWindow):
                 arc_content = f.readlines()
 
             for line in arc_content:
-                if "Total de localidades leidas:" in line:
+                if "Localidades leidas:" in line:
                     leidas = line.split(":")[1].strip()
-                elif "Total de localidades escritas:" in line:
+                elif "localidades escritas:" in line:
                     escritas = line.split(":")[1].strip()
-                elif "Tasa total de MB procesados (MB/segundo):" in line:
+                elif "Tasa MB/s:" in line:
                     rate_bytes = line.split(":")[1].strip()
 
             self.info_display.append(f"Resultados finales:")
